@@ -22,16 +22,21 @@ UpperMain::~UpperMain()
 
 void UpperMain::closeEvent(QCloseEvent *event)
 {
-    bool state=QMessageBox::question(this,"关闭确认","是否确定退出该软件?\t\n你的配置将会被保存！","取消","确定");
+    quit=new QuitMsg(this);
+    connect(quit,&QuitMsg::confirmSave,[this](bool state){ if(!state) this->saveConf();});//连接关闭事件
+    Qt::WindowFlags flags= this->windowFlags();
+    quit->setWindowFlags(flags&~Qt::WindowContextHelpButtonHint&~Qt::WindowMinimizeButtonHint&~Qt::WindowCloseButtonHint);//掩藏问号
+    quit->setModal(true);
+    quit->setFixedSize(quit->width(),quit->height());
+    quit->setWindowTitle("退出提示");
+    int state=quit->exec();
     if(state)
     {
         event->accept();
-        saveConf();//保存配置
     }else{
         event->ignore();
     }
 }
-
 
 void UpperMain::cmd_btn_doubleclicked(int cmdId)
 {
@@ -97,7 +102,6 @@ void UpperMain::initComponent(void)
     connect(ui->rxTxCountClear,&MyLabel::labelClicked,[this]{rxBitsCounter=txBitsCounter=0;ui->rxBitCountNum->setText("----");ui->txBitCountNum->setText("----");});
     connect(ui->rxPauseBtn,&QPushButton::clicked,[this]{rxPauseState=!rxPauseState;ui->rxPauseBtn->setText(rxPauseState?"继续接收":"暂停接收");});
     connect(ui->help,&MyLabel::labelClicked,[this]{h=new help(this);h->show();h->setFixedSize(h->width(),h->height());h->setWindowTitle("帮助");});
-
     connect(ui->aboutMe,&MyLabel::labelClicked,[this]{QMessageBox::information(this,tr("彩蛋-郑愁予《错误》"), "我打江南走过\n"
                                                                                                       "那等在季节里的容颜如莲花的开落\t\n"
                                                                                                       "东风不来，三月的柳絮不飞\n"
@@ -306,9 +310,9 @@ void UpperMain::com_open_clicked()
             //监听串口输入事件
             connect(serial,&QSerialPort::readyRead,this,&UpperMain::rx_read_listen);
             //设定时器定时查询串口
-//            rx_listen_timer = new QTimer(this);
-//            connect(rx_listen_timer, SIGNAL(timeout()), this, SLOT(rx_read_listen()));
-//            rx_listen_timer->start(RX_EVENT_TIMEOUT);//每100ms读一次
+            //            rx_listen_timer = new QTimer(this);
+            //            connect(rx_listen_timer, SIGNAL(timeout()), this, SLOT(rx_read_listen()));
+            //            rx_listen_timer->start(RX_EVENT_TIMEOUT);//每100ms读一次
             UpperMain::setWindowTitle(APP_NAME+"-"+comPort);
         }
         qDebug()<<state<<baudRate<<dataBit<<parityBit<<stopBit<<currentSerial.description();

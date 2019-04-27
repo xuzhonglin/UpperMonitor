@@ -34,6 +34,8 @@ SOURCES += \
         custom/help.cpp \
         component/DoubleClickButton.cpp \
         component/ClickLabel.cpp \
+    custom/QuitMsg.cpp
+
 
 HEADERS += \
         main/uppermain.h \
@@ -41,12 +43,16 @@ HEADERS += \
         custom/help.h \
         component/DoubleClickButton.h \
         component/ClickLabel.h \
+    custom/QuitMsg.h
+
 
 
 FORMS += \
         main/uppermain.ui \
         custom/dialog.ui \
         custom/help.ui \
+    custom/quitmsg.ui
+
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -55,3 +61,6 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 DISTFILES += \
     config.ini \
+
+RESOURCES += \
+    resource/image.qrc

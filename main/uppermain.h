@@ -19,6 +19,7 @@
 #include "custom/help.h"
 #include "component/ClickLabel.h"
 #include "component/DoubleClickButton.h"
+#include "custom/QuitMsg.h"
 
 
 #define COM_EVENT_TIMEOUT 1000
@@ -56,6 +57,7 @@ private:
     QTimer *send_event_timer;
 
     help *h;
+    QuitMsg *quit;
     QString cmd[6];//定义cmd容器
     DoubleClickedButton *cmdbtn[6];
     QMap<QString,QSerialPortInfo> serialInfoList;
@@ -91,6 +93,7 @@ private slots:
     void rx_read_listen();
     void timer_event();
     void timer_send(bool state);
+//    void close_event(bool state);
 
 };
 
