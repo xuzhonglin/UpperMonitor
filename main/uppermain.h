@@ -67,6 +67,8 @@ private:
     int txBitsCounter;
     bool comOpenState;
     bool rxPauseState;
+    bool baudRateEditState;
+    bool sendTimerState;
 
     void closeEvent(QCloseEvent *event);
     void initComponent(void);

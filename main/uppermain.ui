@@ -211,7 +211,7 @@
        </widget>
       </item>
       <item row="1" column="0">
-       <widget class="QLabel" name="label_2">
+       <widget class="MyLabel" name="baudRateLabel">
         <property name="font">
          <font>
           <pointsize>9</pointsize>
@@ -242,9 +242,17 @@
           <height>25</height>
          </size>
         </property>
+        <property name="editable">
+         <bool>false</bool>
+        </property>
         <item>
          <property name="text">
           <string>115200</string>
+         </property>
+        </item>
+        <item>
+         <property name="text">
+          <string>76800</string>
          </property>
         </item>
         <item>
@@ -270,11 +278,6 @@
         <item>
          <property name="text">
           <string>9600</string>
-         </property>
-        </item>
-        <item>
-         <property name="text">
-          <string>4800</string>
          </property>
         </item>
        </widget>

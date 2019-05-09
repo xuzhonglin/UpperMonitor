@@ -111,6 +111,7 @@ void UpperMain::initComponent(void)
                                                                                                       "你的心是小小的窗扉紧掩\n"
                                                                                                       "我达达的马蹄是美丽的错误\n"
                                                                                                       "我不是归人，是个过客……\n",tr("关闭"));});
+    connect(ui->baudRateLabel,&MyLabel::labelClicked,[this]{ui->baudRateOpt->setEditable(!baudRateEditState);baudRateEditState=!baudRateEditState;});
     //connect(ui->clearHistory,&QPushButton::clicked,[this]{ItemModel->clear();});
     connect(ui->txTimerCkb,SIGNAL(clicked(bool)),this,SLOT(timer_send(bool)));
     com_timer = new QTimer(this);//每秒读一次
@@ -186,11 +187,13 @@ void UpperMain::timer_send(bool state)
         send_event_timer=new QTimer(this);
         connect(send_event_timer, SIGNAL(timeout()), this, SLOT(tx_send_clicked()));
         send_event_timer->start(timerCount);
+        sendTimerState=true;
     }else{
         ui->txSendBtn->setText("发送");
         ui->txSendBtn->setDisabled(state);
         ui->txText->setDisabled(state);
         send_event_timer->stop();
+        sendTimerState=false;
     }
 }
 
@@ -221,6 +224,8 @@ void UpperMain::initPara()
 
     comOpenState=false;
     rxPauseState=true;
+    baudRateEditState=false;
+    sendTimerState=false;
     rxBitsCounter=0;
     txBitsCounter=0;
 
@@ -308,12 +313,13 @@ void UpperMain::com_open_clicked()
             ui->comState->setText("开启 "+comPort+" "+baudRateStr+" "+dataBitStr+" "+parityBitStr+" "+stopBitStr);
             currentSerial=serialInfoList[comPort];
             //监听串口输入事件
-            connect(serial,&QSerialPort::readyRead,this,&UpperMain::rx_read_listen);
+//            connect(serial,&QSerialPort::readyRead,this,&UpperMain::rx_read_listen);
             //设定时器定时查询串口
-            //            rx_listen_timer = new QTimer(this);
-            //            connect(rx_listen_timer, SIGNAL(timeout()), this, SLOT(rx_read_listen()));
-            //            rx_listen_timer->start(RX_EVENT_TIMEOUT);//每100ms读一次
+            rx_listen_timer = new QTimer(this);
+            connect(rx_listen_timer, SIGNAL(timeout()), this, SLOT(rx_read_listen()));
+            rx_listen_timer->start(RX_EVENT_TIMEOUT);//每100ms读一次
             UpperMain::setWindowTitle(APP_NAME+"-"+comPort);
+            ui->openBtn->setStyleSheet("background-color:rgb(0,213,106);color:rgb(255,255,255);");
         }
         qDebug()<<state<<baudRate<<dataBit<<parityBit<<stopBit<<currentSerial.description();
 
@@ -330,6 +336,8 @@ void UpperMain::com_open_clicked()
             rxPauseState=true;
             ui->openBtn->setText("连接");
             ui->comState->setText("关闭");
+            ui->openBtn->setStyleSheet("");
+
         }
     }
     ui->comNumOpt->setDisabled(comOpenState);
@@ -353,12 +361,15 @@ void UpperMain::rx_read_listen()
         ui->dataBitOpt->setDisabled(comOpenState);
         ui->parityBitOpt->setDisabled(comOpenState);
         ui->stopBitOpt->setDisabled(comOpenState);
+        ui->openBtn->setStyleSheet("");
 
         ui->txText->setEnabled(true);//取消定时任务
         ui->txSendBtn->setEnabled(true);
         ui->txSendBtn->setText("发送");
         ui->txTimerCkb->setChecked(false);
-        send_event_timer->stop();//取消定时器
+
+        if(sendTimerState)
+            send_event_timer->stop();//取消定时器
 
         ui->openBtn->setText("连接");
         ui->comState->setText("关闭");
